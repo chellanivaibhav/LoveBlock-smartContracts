@@ -1,0 +1,32 @@
+{
+  "name": "love-block-backend",
+  "version": "1.0.0",
+  "description": "LoveBlock simply takes the entire concept of locking padlocks to bridges to the blockchain. This is not only an attempt to express love, but also symbolizes eternal love by putting it onto blockchain which is a public digital ledger that “preserves” the couples’ name forever.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/loveblock/loveblock-backend.git"
+  },
+  "author": "Sayed Tauseef Naqvi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/loveblock/loveblock-backend/issues"
+  },
+  "homepage": "https://gitlab.com/loveblock/loveblock-backend#README",
+  "dependencies": {
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "ethers": "^2.2.5",
+    "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.1",
+    "lodash": "^4.17.5",
+    "mongoose": "^5.0.3",
+    "morgan": "^1.9.0",
+    "web3": "1.0.0-beta.26"
+  }
+}
