@@ -8,7 +8,7 @@ import "./LockOwnership.sol";
 contract LockBuySell is LockOwnership {
     /** events */
     event SellOrderCreated(uint256,uint256,address);
-    event SellOrderCancelled( SellOrder sellorder, uint256 id);
+    event SellOrderCancelled(uint256);
     event SellOrderFulFilled(uint256,uint256,address,address);
     
 
@@ -30,7 +30,7 @@ contract LockBuySell is LockOwnership {
         return (tokenIdToSellOrder[_tokenId].status == 1);
     }
     function _removeSellOrder(uint256 _tokenId) internal {
-        SellOrderCancelled(tokenIdToSellOrder[_tokenId],_tokenId);
+       // SellOrderCancelled(tokenIdToSellOrder[_tokenId],_tokenId);
         delete tokenIdToSellOrder[_tokenId];
     }
     
@@ -60,7 +60,7 @@ contract LockBuySell is LockOwnership {
         tokenIdToSellOrder[_lock_id] = _sellorder;
         //checks overflow
         //emit sell event
-        SellOrderCreated(price,_lock_id,msg.sender);
+        SellOrderCreated(_lock_id,price,msg.sender);
         
     }
     // checks if the sender is owner of lock , checks if the lock is on sale 
