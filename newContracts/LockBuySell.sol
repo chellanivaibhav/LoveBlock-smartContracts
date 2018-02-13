@@ -71,6 +71,7 @@ contract LockBuySell is LockOwnership {
         require(_isOnSale(token_id));
         // remove the lock sell order
         _removeSellOrder(token_id);
+        SellOrderCancelled(token_id);b
     }
     function buySellOrder(uint256 token_id, uint256 amount ) external payable {
         // check if the given lock is on sale

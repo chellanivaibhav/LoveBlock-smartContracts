@@ -11,7 +11,13 @@ contract LockBase is LockAccessControl {
     event Transfer(address from,address to,uint256 tokenId);
     event LockCreated(address, uint256,string);
     event EventGenerationByForging(uint256[],address);
-    event LicenceGiven(uint256,uint256,uint64,string,string);
+    event LicenceGiven(uint256,uint256,uint64,string,string,address);
+    event LicenseRemoved(uint256,uint256);
+    event LimitPlanAdded (uint256,uint256);
+    event LimitPlanRemoved(uint256,uint256);
+    event LicenseRateTimeAdded(uint256 ,uint256);
+    event LicenseRateTimeRemoved(uint256,uint256);
+    event LockUpgraded (uint lockid, uint256 increaseByValue);
     // struct of lock , all locks generated would be stored over here
     struct Lock {
 
@@ -41,6 +47,7 @@ contract LockBase is LockAccessControl {
     // 
     mapping (uint256 => uint256) public limitIncreaseToRate;
     
+    mapping (uint256 => uint256) public checkMultiplierForPosition;
     
     struct LockedLock {
         string message;
@@ -53,73 +60,89 @@ contract LockBase is LockAccessControl {
     
     function addRateAndTime(uint64 time, uint256 rateInEth) onlyCLevel {
         timeToRateMapping[time] = rateInEth;
-        //NewTimeRateAdded(time,rateInEth);
+        LicenseRateTimeAdded(time,timeToRateMapping[time]);
     }
+
     function removeRateAndTime(uint64 time) onlyCLevel {
-        //DeletedTimeRate(time,timeToRateMapping[time]);
+        LicenseRateTimeRemoved(time,timeToRateMapping[time]);
         delete timeToRateMapping[time];
-        
     }
+    // license lock for given time 
     function licenseLock(
         uint256 _tokenId ,
         string _message,
         string _partner,
         uint256 position, 
         uint64 time 
-    ) payable external {
+    ) payable external
+    {
+        // check if there exists a non zero rate for given time 
         require(timeToRateMapping[time] != 0);
         // TODO uncomment this 
         //require(msg.value >= timeToRateMapping[time]);
-        // TODO uncomment this 
-        //ceoAddress.transfer(timeToRateMapping[time]);
         // check if the owner of lock is msg sender
         require(lockIndexToOwner[_tokenId] == msg.sender);
         // check if the position is greater than 0
         require(position >= 0);
         // make the LockedLock object
         LockedLock memory _lockedLock = LockedLock({
-            partner : _partner ,
+            partner : _partner,
             message : _message 
         }); 
         
         Lock storage lockToBeLicensed = locks[_tokenId];
-        lockToBeLicensed.lockStatus=1;
+        lockToBeLicensed.lockStatus = 1;
         
         
         // checks if position if less than length , else it appends the lock to the end .
         if (position < lockedLocks.length) {
             // check if the position is filled or not 
             require(!checkIfFilled[position]);
+            // TODO add multiplier logic
+            if(checkMultiplierForPosition[position]!=0) {
+                ceoAddress.transfer(timeToRateMapping[time]*checkMultiplierForPosition[position]); 
+                msg.sender.transfer(msg.value - timeToRateMapping[time]);
+            }else {
+                ceoAddress.transfer(timeToRateMapping[time]); 
+                msg.sender.transfer(msg.value - timeToRateMapping[time]);
+            }
+            
             // fill the position in the arrray with the lock
             lockedLocks[position] = _lockedLock;
             // attach the token id with lock position
             tokenIdToLockedLockPosition[_tokenId] = position;
             // mark the position filled
-            checkIfFilled[position]=true;
-            LicenceGiven(_tokenId,position,time,_partner,_message);
+            checkIfFilled[position] = true;
+            LicenceGiven(_tokenId,position,time,_partner,_message,msg.sender);
         } else {
+            // TODO add multiplierlogic 
+            // TODO uncomment this 
+            // ceoAddress.transfer(timeToRateMapping[time]); 
+            //  msg.sender.transfer(msg.value - timeToRateMapping[time]);
+        
             // fill the position in the array with the lock and generate the new lockedLockId
             uint256 lockedLockId = lockedLocks.push(_lockedLock)-1;
             // attach the token id with lock position
-            tokenIdToLockedLockPosition[_tokenId]=lockedLockId;
+            tokenIdToLockedLockPosition[_tokenId] = lockedLockId;
             // check the data type
             require(lockedLockId == uint256(uint32(lockedLockId)));
             // mark the position filled
-            checkIfFilled[lockedLockId]=true;
-            LicenceGiven(_tokenId,lockedLockId,time,_partner,_message);
+            checkIfFilled[lockedLockId] = true;
+            LicenceGiven(_tokenId,lockedLockId,time,_partner,_message,msg.sender);
         }
         
         
     }
-    function removeLockLicense (uint256 token_id) onlyCLevel 
-    {       
+    function removeLockLicense (uint256 token_id) external onlyCLevel {       
             // grabs locked lock id from token id and checks if its filled
             require(checkIfFilled[tokenIdToLockedLockPosition[token_id]]);
             Lock storage lockToBeRemoved = locks[token_id];
             lockToBeRemoved.lockStatus=0;
+            LicenseRemoved(token_id,tokenIdToLockedLockPosition[token_id]);
             delete lockedLocks[tokenIdToLockedLockPosition[token_id]];
             delete tokenIdToLockedLockPosition[token_id];
             checkIfFilled[tokenIdToLockedLockPosition[token_id]]=false;
+            
             
     }
     
@@ -131,11 +154,12 @@ contract LockBase is LockAccessControl {
         // check if the plan exists
         require(limitIncreaseToRate[increaseByValue]!=0);
         // transfer the rate to ceoAddress
-        ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
+        //TODO uncomment below
+        //ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
         // increase the values by given amount
-        lockToBeUpgraded.lettersLimit=lockToBeUpgraded.lettersLimit+increaseByValue;
-        lockToBeUpgraded.picsLimit=lockToBeUpgraded.picsLimit+increaseByValue;
-        
+        lockToBeUpgraded.lettersLimit = lockToBeUpgraded.lettersLimit+increaseByValue;
+        lockToBeUpgraded.picsLimit = lockToBeUpgraded.picsLimit+increaseByValue;
+        LockUpgraded(lockId,increaseByValue);
     }
     //TODO
     //SaleClockAuction public saleAuction;
@@ -153,6 +177,7 @@ contract LockBase is LockAccessControl {
         // Emit the transfer event.
         Transfer(_from, _to, _tokenId);
     }
+    // function to generate locks , to be used by c level 
     function _generationCEO (
         string _blueprint,
         uint256[] _parents,
@@ -172,18 +197,17 @@ contract LockBase is LockAccessControl {
 
         uint256 newLockId = locks.push(_lock) - 1;
         require(newLockId == uint256(uint32(newLockId)));
-        // emit generation event 
-        // execute _transferfunction 
         // transefers newly generated locks to ceoaddress
         _transfer(0, ceoAddress, newLockId);
        
        // fire event
-       LockCreated( ceoAddress,newLockId,_blueprint);
+        LockCreated( ceoAddress,newLockId,_blueprint);
 
         return newLockId;
 
     }
-    /*function __callback(string _blueprint,address owner, uint256[] _parents){
+    // callback function to be used by us to send the whole lock data and creating lock 
+    /*function __callback(string _blueprint,address owner, uint256[] _parents) onlyCLevel{
         
         Lock memory _lock = Lock(
             {
@@ -206,27 +230,40 @@ contract LockBase is LockAccessControl {
 
         
     }*/
-    function _generationByForging(uint256[] _parents) {
+    // function to be called by user for generating new locks by forging
+    function _generationByForging(uint256[] _parents) public {
         //oraclise call
         EventGenerationByForging(_parents,msg.sender);
     }
-    
+    // function for adding the plans to upgrade account
     function addLimitAndRate(uint256 limit, uint256 rate) onlyCLevel {
         // limit has to be multiple of 5
         require((limit%5)==0);
-        // means increase the limit of lock by given number when give with the given int 
-        limitIncreaseToRate[limit]=rate;
+        // increase the limit of lock by given number when give with the given int 
+        limitIncreaseToRate[limit] = rate;
+        LimitPlanAdded(limit,rate);
     }
-    function removeLimitAndRate(uint256 limit) onlyCLevel{
+
+    // function for removing upgrade plans 
+    // params : limit
+    function removeLimitAndRate(uint256 limit) onlyCLevel {
+        //check if plan to be deleted exists
+        require(limitIncreaseToRate[limit]!=uint256(0));
+        // fire event 
+        LimitPlanRemoved(limit,limitIncreaseToRate[limit]);
+        // remove from mapping
         delete limitIncreaseToRate[limit];
     }
-
-
+    // adds multiplier for specific location
+    function addMultiplierForPosition(uint256 pos,uint256 mul) external onlyCLevel {
+        // to put or not to put 
+        require(mul >= 1);
+        checkMultiplierForPosition[pos] = mul;
+    }
+    function removeMultiplierForPosition (uint256 pos) external onlyCLevel { 
+        // checks if exists
+        require(checkMultiplierForPosition[pos]!=0);
+        // removes
+        delete checkMultiplierForPosition[pos];
+    }
 }
-
-// things to sort in this contract 
-// adding of variables of sibling contracts (39)
-// adding of events or transfer and generation 
-// creation of gen0 and forged locks functions 
-
-//REST IS DONE , i guess 
