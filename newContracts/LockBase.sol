@@ -4,7 +4,14 @@ pragma solidity ^0.4.11;
 import "./LockAccessControl.sol";
 
 contract LockBase is LockAccessControl { 
-
+    function LockBase(){
+        LockedLock memory firstLockedLock = LockedLock({
+            partner : "none",
+            message : "none" 
+        });
+        lockedLocks[0] = firstLockedLock;
+        checkIfFilled[0] = true;
+    }
     // events to be generated 
     // transfer 
     // created new lock either from forging or from creation by ceo
@@ -60,6 +67,7 @@ contract LockBase is LockAccessControl {
     mapping (uint256 => uint256) public tokenIdToLockedLockPosition;
     // connect time and rate for licensing 
     mapping (uint64 => uint256) public timeToRateMapping;
+    uint256 lastPosition=0;
     
 
     /**LICENSING STUFF */
@@ -81,6 +89,7 @@ contract LockBase is LockAccessControl {
         uint64 time 
     ) payable external whenNotPaused
     {
+        
         // check if there exists a non zero rate for given time 
         require(timeToRateMapping[time] != 0);
         // check if the value given is more than or equal to rate
@@ -94,7 +103,12 @@ contract LockBase is LockAccessControl {
             partner : _partner,
             message : _message 
         }); 
-        
+        if(position == 0) {
+            // means no postion is coming add at end 
+        } else {
+            // position is coming add it if not filled and update last position if big
+
+        }
         Lock storage lockToBeLicensed = locks[_tokenId];
         // checks if the lock is not on chain or on sale 
         require(lockToBeLicensed.lockStatus == 0);
