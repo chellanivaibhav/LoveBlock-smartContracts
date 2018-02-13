@@ -11,8 +11,7 @@ contract LockBuySell is LockOwnership {
     event SellOrderCancelled(uint256);
     event SellOrderFulFilled(uint256,uint256,address,address);
     
-
-
+    
     struct SellOrder {
         address seller ;
         uint256 sellingPrice;
@@ -38,14 +37,16 @@ contract LockBuySell is LockOwnership {
     // fetch the lock , check owner is the msg.sender , change lockstatus to onsale 
     // will be called by owner of lock
     // check if or front end will call this or contract 
-    function createSellOrder(uint256 price, uint256 _lock_id) external whenNotPaused {
+    function createSellOrder(uint256 price, uint256 _lock_id) external payable whenNotPaused {
         // add require statements to validate input 
         // checks if the owner is msg.sender , only the owner can put sell order 
         require(_owns(msg.sender, _lock_id));
-
+        require(msg.value >= (cut*price)/100);
+        ceoAddress.transfer((cut*price)/100);
+        msg.sender.transfer(msg.value - (cut*price)/100);
         // TODO check if lock with this tokenid exists
         Lock storage sellingLock = locks[_lock_id];
-
+        require(sellingLock.lockStatus == 0);
         //TODO is this needed 
         sellingLock.lockStatus = 2;
 
@@ -64,19 +65,21 @@ contract LockBuySell is LockOwnership {
         
     }
     // checks if the sender is owner of lock , checks if the lock is on sale 
-    function cancelSellOrder(uint256 token_id) whenNotPaused{
+    function cancelSellOrder(uint256 token_id) whenNotPaused {
         // check if the msg.sender owns the lock
         require(_owns(msg.sender,token_id));
         //check if the lock is on sale
         require(_isOnSale(token_id));
+        Lock storage sellingLock = locks[token_id];
+	    sellingLock.lockStatus = 0;
         // remove the lock sell order
         _removeSellOrder(token_id);
         SellOrderCancelled(token_id);
     }
-    function buySellOrder(uint256 token_id, uint256 amount ) external payable whenNotPaused {
+    function buySellOrder(uint256 token_id ) external payable whenNotPaused{
         // check if the given lock is on sale
         require(_isOnSale(token_id));
-
+        
         // change status of lock to defaut
         Lock storage sellingLock = locks[token_id];
         sellingLock.lockStatus = 0;
@@ -84,16 +87,13 @@ contract LockBuySell is LockOwnership {
         // fetch seller and price before deleting
         address seller_address = tokenIdToSellOrder[token_id].seller;  
         uint256 selling_price = tokenIdToSellOrder[token_id].sellingPrice;
-        require(selling_price <= amount);
+        require(selling_price + (selling_price*3)/100 <= msg.value);
 
+        ceoAddress.transfer((selling_price*cut)/100);
+        seller_address.transfer(selling_price);
+        msg.sender.transfer(msg.value - (selling_price + (selling_price*3)/100));
         // remove sell order to prevent reentrancy attack
         _removeSellOrder(token_id);
-
-        // TODO if the  buyer sends more money then needed return back
-        //uint256 remainder = amount-selling_price;
-        
-        // not working 
-        //seller_address.transfer(selling_price);
         
         require(_approvedFor(this, token_id));
         require(_owns(seller_address, token_id)); 

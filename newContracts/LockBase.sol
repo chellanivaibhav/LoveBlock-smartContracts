@@ -30,7 +30,6 @@ contract LockBase is LockAccessControl {
         // 2 means on sale 
         // 1 means on chain 
         uint256 lockStatus;
-        // assume 
         uint256 lettersLimit;
         uint256 picsLimit;
     }
@@ -44,8 +43,7 @@ contract LockBase is LockAccessControl {
     // this array will store all locks , we give id we get lock object , simple and sweet !
     Lock[] public locks;
     // this array will contain all the locked locks
-    LockedLock[] public lockedLocks;
-
+    mapping(uint256 => LockedLock) public lockedLocks;
     // this mapping will track address of owner with lockid which is basically the index of lock in the above array 
     mapping(uint256 => address) public lockIndexToOwner;
     // this mapping will give us no of locks owned by an address , we will increment this when tranfer of ownership happens
@@ -85,8 +83,8 @@ contract LockBase is LockAccessControl {
     {
         // check if there exists a non zero rate for given time 
         require(timeToRateMapping[time] != 0);
-        // TODO uncomment this 
-        //require(msg.value >= timeToRateMapping[time]);
+        // check if the value given is more than or equal to rate
+        require(msg.value >= timeToRateMapping[time]);
         // check if the owner of lock is msg sender
         require(lockIndexToOwner[_tokenId] == msg.sender);
         // check if the position is greater than 0
@@ -98,66 +96,44 @@ contract LockBase is LockAccessControl {
         }); 
         
         Lock storage lockToBeLicensed = locks[_tokenId];
-        // checks if the lock is not on chain already 
-        require(lockToBeLicensed.lockStatus != 1 );
-
-        lockToBeLicensed.lockStatus = 1;
-        
-        
-        // checks if position if less than length , else it appends the lock to the end .
-        if (position < lockedLocks.length) {
-            // check if the position is filled or not 
-            require(!checkIfFilled[position]);
-            // TODO add multiplier logic
-            if(checkMultiplierForPosition[position]!=0) {
+        // checks if the lock is not on chain or on sale 
+        require(lockToBeLicensed.lockStatus == 0);
+        // check if the position is filled 
+        require(!checkIfFilled[position]);
+        // check if the mutiplier exists and transfer accordingly
+        if(checkMultiplierForPosition[position]!=0) {
                 ceoAddress.transfer(timeToRateMapping[time]*checkMultiplierForPosition[position]); 
                 msg.sender.transfer(msg.value - timeToRateMapping[time]);
-            }else {
+            } else {
                 ceoAddress.transfer(timeToRateMapping[time]); 
                 msg.sender.transfer(msg.value - timeToRateMapping[time]);
-            }
-            
-            // fill the position in the arrray with the lock
-            lockedLocks[position] = _lockedLock;
-            // attach the token id with lock position
-            tokenIdToLockedLockPosition[_tokenId] = position;
-            // mark the position filled
-            checkIfFilled[position] = true;
-            lockToBeLicensed.lockStatus = 1;
-
-            LicenceGiven(_tokenId,position,time,_partner,_message,msg.sender);
-        } else {
-            // TODO add multiplierlogic 
-            // TODO uncomment this 
-            // ceoAddress.transfer(timeToRateMapping[time]); 
-            //  msg.sender.transfer(msg.value - timeToRateMapping[time]);
-        
-            // fill the position in the array with the lock and generate the new lockedLockId
-            uint256 lockedLockId = lockedLocks.push(_lockedLock)-1;
-            // attach the token id with lock position
-            tokenIdToLockedLockPosition[_tokenId] = lockedLockId;
-            // check the data type
-            require(lockedLockId == uint256(uint32(lockedLockId)));
-            // mark the position filled
-            checkIfFilled[lockedLockId] = true;
-            lockToBeLicensed.lockStatus = 1;
-
-            LicenceGiven(_tokenId,lockedLockId,time,_partner,_message,msg.sender);
         }
-        
-        
+
+        // fill the position in the arrray with the lock
+        lockedLocks[position] = _lockedLock;
+        // attach the token id with lock position
+        tokenIdToLockedLockPosition[_tokenId] = position;
+        // mark the position filled
+        checkIfFilled[position] = true;
+        // change the lock status to on chain 
+        lockToBeLicensed.lockStatus = 1;
+        LicenceGiven(_tokenId,position,time,_partner,_message,msg.sender);
     }
     function removeLockLicense (uint256 token_id) external onlyCLevel {       
-            // grabs locked lock id from token id and checks if its filled
+            // grabs locked lock position from token id and checks if its filled
             require(checkIfFilled[tokenIdToLockedLockPosition[token_id]]);
+            // grabs lock from state 
             Lock storage lockToBeRemoved = locks[token_id];
+            // changes the status of lock to default
             lockToBeRemoved.lockStatus=0;
+            // event fired
             LicenseRemoved(token_id,tokenIdToLockedLockPosition[token_id]);
+            // deleted lockedLock
             delete lockedLocks[tokenIdToLockedLockPosition[token_id]];
+            // deleted linking of tokenid and lockedlock
             delete tokenIdToLockedLockPosition[token_id];
-            checkIfFilled[tokenIdToLockedLockPosition[token_id]]=false;
-            
-            
+            // emptied the space on chain
+            checkIfFilled[tokenIdToLockedLockPosition[token_id]] = false;
     }
 
 
@@ -167,12 +143,15 @@ contract LockBase is LockAccessControl {
         require(lockIndexToOwner[lockId]==msg.sender);
         // get lock
         Lock storage lockToBeUpgraded = locks[lockId];
-        require(lockToBeUpgraded.lockStatus == 0);
         // check if the plan exists
         require(limitIncreaseToRate[increaseByValue]!=0);
+        // check of the value is more than that has to be transferred 
+        require(msg.value >= limitIncreaseToRate[increaseByValue]);
         // transfer the rate to ceoAddress
-        //TODO uncomment below
-        //ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
+        ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
+
+    // trasfer the remainder to sender
+        msg.sender.transfer(msg.value - limitIncreaseToRate[increaseByValue]);
         // increase the values by given amount
         lockToBeUpgraded.lettersLimit = lockToBeUpgraded.lettersLimit+increaseByValue;
         lockToBeUpgraded.picsLimit = lockToBeUpgraded.picsLimit+increaseByValue;

@@ -11,6 +11,10 @@ contract LockOwnership is LockBase , ERC721 {
     event Approval(address from, address to, uint256 _tokenId);
     
 
+    uint256 public cut=3;
+    function setCut(uint256 _cut) external onlyCLevel {
+        cut=_cut;
+    }
 
     string public constant name = "LoveBlock";
     string public constant symbol = "LB";
