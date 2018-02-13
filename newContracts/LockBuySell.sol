@@ -38,7 +38,7 @@ contract LockBuySell is LockOwnership {
     // fetch the lock , check owner is the msg.sender , change lockstatus to onsale 
     // will be called by owner of lock
     // check if or front end will call this or contract 
-    function createSellOrder(uint256 price, uint256 _lock_id) external {
+    function createSellOrder(uint256 price, uint256 _lock_id) external whenNotPaused {
         // add require statements to validate input 
         // checks if the owner is msg.sender , only the owner can put sell order 
         require(_owns(msg.sender, _lock_id));
@@ -64,16 +64,16 @@ contract LockBuySell is LockOwnership {
         
     }
     // checks if the sender is owner of lock , checks if the lock is on sale 
-    function cancelSellOrder(uint256 token_id) {
+    function cancelSellOrder(uint256 token_id) whenNotPaused{
         // check if the msg.sender owns the lock
         require(_owns(msg.sender,token_id));
         //check if the lock is on sale
         require(_isOnSale(token_id));
         // remove the lock sell order
         _removeSellOrder(token_id);
-        SellOrderCancelled(token_id);b
+        SellOrderCancelled(token_id);
     }
-    function buySellOrder(uint256 token_id, uint256 amount ) external payable {
+    function buySellOrder(uint256 token_id, uint256 amount ) external payable whenNotPaused {
         // check if the given lock is on sale
         require(_isOnSale(token_id));
 
