@@ -103,17 +103,37 @@ contract LockBase is LockAccessControl {
             partner : _partner,
             message : _message 
         }); 
-        if(position == 0) {
-            // means no postion is coming add at end 
-        } else {
-            // position is coming add it if not filled and update last position if big
-
-        }
         Lock storage lockToBeLicensed = locks[_tokenId];
         // checks if the lock is not on chain or on sale 
         require(lockToBeLicensed.lockStatus == 0);
-        // check if the position is filled 
-        require(!checkIfFilled[position]);
+        if(position == 0) {
+            lockedLocks[lastPosition+1] = _lockedLock;
+            lastPosition++;
+            // fill the position in the array with the lock and generate the new lockedLockId
+            uint256 lockedLockId = lastPosition;
+            // attach the token id with lock position
+            tokenIdToLockedLockPosition[_tokenId]=lockedLockId;
+            // check the data type
+            require(lockedLockId == uint256(uint32(lockedLockId)));
+            // mark the position filled
+            checkIfFilled[lockedLockId]=true;
+            LicenceGiven(_tokenId,lockedLockId,time,_partner,_message,msg.sender);
+        } else {
+            // position is coming add it if not filled and update last position if big
+            // check if the position is filled 
+            require(!checkIfFilled[position]);
+            if(position > lastPosition ) {
+                lastPosition = position;
+            }
+            // fill the position in the arrray with the lock
+            lockedLocks[position] = _lockedLock;
+            // attach the token id with lock position
+            tokenIdToLockedLockPosition[_tokenId] = position;
+            // mark the position filled
+            checkIfFilled[position] = true;
+        
+        }
+        
         // check if the mutiplier exists and transfer accordingly
         if(checkMultiplierForPosition[position]!=0) {
                 ceoAddress.transfer(timeToRateMapping[time]*checkMultiplierForPosition[position]); 
@@ -122,13 +142,6 @@ contract LockBase is LockAccessControl {
                 ceoAddress.transfer(timeToRateMapping[time]); 
                 msg.sender.transfer(msg.value - timeToRateMapping[time]);
         }
-
-        // fill the position in the arrray with the lock
-        lockedLocks[position] = _lockedLock;
-        // attach the token id with lock position
-        tokenIdToLockedLockPosition[_tokenId] = position;
-        // mark the position filled
-        checkIfFilled[position] = true;
         // change the lock status to on chain 
         lockToBeLicensed.lockStatus = 1;
         LicenceGiven(_tokenId,position,time,_partner,_message,msg.sender);
