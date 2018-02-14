@@ -4,7 +4,7 @@ pragma solidity ^0.4.11;
 import "./LockAccessControl.sol";
 
 contract LockBase is LockAccessControl { 
-    function LockBase(){
+    function LockBase() {
         LockedLock memory firstLockedLock = LockedLock({
             partner : "none",
             message : "none" 
@@ -242,8 +242,8 @@ contract LockBase is LockAccessControl {
 
         uint256 newLockId = locks.push(_lock) - 1;
         require(newLockId == uint256(uint32(newLockId)));
-        // transefers newly generated locks to ceoaddress
-        _transfer(0, ceoAddress, newLockId);
+        // transfers newly generated locks to ceoaddress
+        _transfer(0,ceoAddress,newLockId);
        
        // fire event
         LockCreated( ceoAddress,newLockId,_blueprint);
@@ -252,32 +252,32 @@ contract LockBase is LockAccessControl {
 
     }
     // callback function to be used by us to send the whole lock data and creating lock 
-    /*function __callback(string _blueprint,address owner, uint256[] _parents) onlyCLevel{
+    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCLevel returns (uint256) { 
         
-        Lock memory _lock = Lock(
-            {
+        Lock memory _lock = Lock({
             lockBlueprint:_blueprint,
             creationTime: uint64(now),
             parentArray:_parents,
             lockStatus: 0,
-            lettersLimit: _lettersLimit,
-            picsLimit : _picsLimit
+            lettersLimit: _letterLimit,
+            picsLimit : _picLimit
         });
 
         uint256 newLockId = locks.push(_lock) - 1;
         require(newLockId == uint256(uint32(newLockId)));
         // emit generation event 
         // execute _transferfunction 
-        // transefers newly generated locks to ceoaddress
-        _transfer(0, ceoAddress, newLockId);
-       // GeneratedLock(ceoAddress,newLockId,_lock);
-        return newLockId;
+        // transefers newly generated locks to owner address 
+        _transfer(0, owner, newLockId);
+        LockCreated( owner,newLockId,_blueprint);
 
+        return newLockId;
         
-    }*/
+    }
     // function to be called by user for generating new locks by forging
-    function _generationByForging(uint256[] _parents) public {
+    function _generationByForging(uint256[] _parents) public whenNotPaused {
         //oraclise call
+        // add cut here 
         EventGenerationByForging(_parents,msg.sender);
     }
 
@@ -294,6 +294,7 @@ contract LockBase is LockAccessControl {
         // removes
         delete checkMultiplierForPosition[pos];
     }
+    
 
 
 }

@@ -16,4 +16,12 @@ contract LockCore is LockOwnership , LockBuySell {
         cooAddress = msg.sender;
 
     }
+    function getBalanceContract() constant onlyCLevel returns(uint) {
+        return this.balance;
+    }
+    function withdraw(uint amount) payable onlyCLevel returns(bool) {
+        require(amount < this.balance);
+        ceoAddress.transfer(amount);
+        return true;
+    }
 }
