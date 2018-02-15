@@ -9,9 +9,17 @@ contract LockBase is LockAccessControl {
             partner : "none",
             message : "none" 
         });
+        
         lockedLocks[0] = firstLockedLock;
         checkIfFilled[0] = true;
+        lockedLocksCount = 0;
+
     }
+    uint256 public forgingFees =500000000000000000 * 1 wei ;
+    function setForgingFee(uint256 _fee) external onlyCLevel {
+        forgingFees = _fee;
+    }
+
     // events to be generated 
     // transfer 
     // created new lock either from forging or from creation by ceo
@@ -49,6 +57,7 @@ contract LockBase is LockAccessControl {
 
     // this array will store all locks , we give id we get lock object , simple and sweet !
     Lock[] public locks;
+    uint256 public lockedLocksCount;
     // this array will contain all the locked locks
     mapping(uint256 => LockedLock) public lockedLocks;
     // this mapping will track address of owner with lockid which is basically the index of lock in the above array 
@@ -131,8 +140,11 @@ contract LockBase is LockAccessControl {
             tokenIdToLockedLockPosition[_tokenId] = position;
             // mark the position filled
             checkIfFilled[position] = true;
-        
+            
         }
+        // increment lockedLock count
+        lockedLocksCount++;
+        
         
         // check if the mutiplier exists and transfer accordingly
         if(checkMultiplierForPosition[position]!=0) {
@@ -159,6 +171,9 @@ contract LockBase is LockAccessControl {
             delete lockedLocks[tokenIdToLockedLockPosition[token_id]];
             // deleted linking of tokenid and lockedlock
             delete tokenIdToLockedLockPosition[token_id];
+            // decrement lockedLockCount
+            lockedLocksCount--;
+
             // emptied the space on chain
             checkIfFilled[tokenIdToLockedLockPosition[token_id]] = false;
     }
@@ -177,7 +192,7 @@ contract LockBase is LockAccessControl {
         // transfer the rate to ceoAddress
         ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
 
-    // trasfer the remainder to sender
+        // trasfer the remainder to sender
         msg.sender.transfer(msg.value - limitIncreaseToRate[increaseByValue]);
         // increase the values by given amount
         lockToBeUpgraded.lettersLimit = lockToBeUpgraded.lettersLimit+increaseByValue;
@@ -205,7 +220,11 @@ contract LockBase is LockAccessControl {
 
     //TODO
     //SaleClockAuction public saleAuction;
-    
+    function isOwnerOf(address _claimant, uint256 _tokenId) internal view returns (bool) {
+        return lockIndexToOwner[_tokenId] == _claimant;
+    }
+
+
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
         ownershipTokenCount[_to]++;
         // transfer ownership
@@ -269,7 +288,7 @@ contract LockBase is LockAccessControl {
         // execute _transferfunction 
         // transefers newly generated locks to owner address 
         _transfer(0, owner, newLockId);
-        LockCreated( owner,newLockId,_blueprint);
+        LockCreated(owner,newLockId,_blueprint);
 
         return newLockId;
         
@@ -278,6 +297,14 @@ contract LockBase is LockAccessControl {
     function _generationByForging(uint256[] _parents) public whenNotPaused {
         //oraclise call
         // add cut here 
+        require(_parents.length <= 3);
+        for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
+            require(isOwnerOf(msg.sender,_parents[i]));
+        }
+        require(msg.value > forgingFees);
+        ceoAddress.transfer(forgingFees);
+        msg.sender.transfer(msg.value - forgingFees);
+
         EventGenerationByForging(_parents,msg.sender);
     }
 
