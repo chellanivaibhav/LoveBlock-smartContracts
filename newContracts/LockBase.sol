@@ -19,10 +19,6 @@ contract LockBase is LockAccessControl {
     function setForgingFee(uint256 _fee) external onlyCLevel {
         forgingFees = _fee;
     }
-
-    // events to be generated 
-    // transfer 
-    // created new lock either from forging or from creation by ceo
     event Transfer(address from,address to,uint256 tokenId);
     event LockCreated(address, uint256,string);
     event EventGenerationByForging(uint256[],address);
@@ -40,6 +36,8 @@ contract LockBase is LockAccessControl {
         uint64 creationTime;
         //parent id array 
         uint256[] parentArray;
+        // we wont be able to store the incoming info directly
+        //mapping (uint256 => uint256) parentArray;
         // status means onrent, for sale , locked , unlocked and more 
         // for now lets assume , 0 is the default , unlocked,unrented,notonsale
         // 2 means on sale 
@@ -53,6 +51,7 @@ contract LockBase is LockAccessControl {
         string message;
         string partner;
     }
+    
     /*** STORAGE ***/
 
     // this array will store all locks , we give id we get lock object , simple and sweet !
@@ -320,6 +319,12 @@ contract LockBase is LockAccessControl {
         require(checkMultiplierForPosition[pos]!=0);
         // removes
         delete checkMultiplierForPosition[pos];
+    }
+    function getParentsOfLock(uint256 lockId) constant external returns (uint256[]) { 
+        
+        Lock storage referencedLock = locks[lockId];
+        return referencedLock.parentArray;
+
     }
     
 
