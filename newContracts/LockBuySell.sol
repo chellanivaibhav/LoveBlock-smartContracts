@@ -22,9 +22,7 @@ contract LockBuySell is LockOwnership {
 
     /*** Storage**/
     mapping(uint256 => SellOrder) public tokenIdToSellOrder;
-    // mapping to get the no of sell orders per address 
-    mapping(address => uint256) sellOrderCount;
-
+    
     function _isOnSale(uint256 _tokenId) internal view returns(bool) {
         return (tokenIdToSellOrder[_tokenId].status == 1);
     }
@@ -41,7 +39,7 @@ contract LockBuySell is LockOwnership {
         // add require statements to validate input 
         // checks if the owner is msg.sender , only the owner can put sell order 
         require(_owns(msg.sender, _lock_id));
-        uint256 value= price * 1 wei;
+        uint256 value = price * 1 wei;
         require(msg.value >= (cut*value)/100);
         ceoAddress.transfer((cut*value)/100);
         msg.sender.transfer(msg.value - (cut*value)/100);

@@ -76,12 +76,12 @@ contract LockBase is LockAccessControl {
     mapping (uint256 => uint256) public tokenIdToLockedLockPosition;
     // connect time and rate for licensing 
     mapping (uint64 => uint256) public timeToRateMapping;
-    uint256 lastPosition=0;
+    uint256 public lastPosition=0;
     
 
     /**LICENSING STUFF */
-    function addRateAndTime(uint64 time, uint256 rateInEth) onlyCLevel {
-        timeToRateMapping[time] = rateInEth;
+    function addRateAndTime(uint64 time, uint256 rateInWei) onlyCLevel {
+        timeToRateMapping[time] = rateInWei;
         LicenseRateTimeAdded(time,timeToRateMapping[time]);
     }
 
@@ -91,7 +91,7 @@ contract LockBase is LockAccessControl {
     }
     // license lock for given time 
     function licenseLock(
-        uint256 _tokenId ,
+        uint256 _tokenId,
         string _message,
         string _partner,
         uint256 position, 
