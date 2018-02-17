@@ -22,7 +22,7 @@ contract LockBase is LockAccessControl {
     event Transfer(address from,address to,uint256 tokenId);
     event LockCreated(address, uint256,string);
     event EventGenerationByForging(uint256[],address);
-    event LicenceGiven(uint256,uint256,uint64,string,string,address);
+    event LicenseGiven(uint256,uint256,uint64,string,string,address);
     event LicenseRemoved(uint256,uint256);
     event LimitPlanAdded (uint256,uint256);
     event LimitPlanRemoved(uint256,uint256);
@@ -125,7 +125,6 @@ contract LockBase is LockAccessControl {
             require(lockedLockId == uint256(uint32(lockedLockId)));
             // mark the position filled
             checkIfFilled[lockedLockId]=true;
-            LicenceGiven(_tokenId,lockedLockId,time,_partner,_message,msg.sender);
         } else {
             // position is coming add it if not filled and update last position if big
             // check if the position is filled 
@@ -155,7 +154,7 @@ contract LockBase is LockAccessControl {
         }
         // change the lock status to on chain 
         lockToBeLicensed.lockStatus = 1;
-        LicenceGiven(_tokenId,position,time,_partner,_message,msg.sender);
+        LicenseGiven(_tokenId,position,time,_partner,_message,msg.sender);
     }
     function removeLockLicense (uint256 token_id) external onlyCLevel {       
             // grabs locked lock position from token id and checks if its filled
