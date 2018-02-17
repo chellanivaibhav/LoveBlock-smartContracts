@@ -1,6 +1,5 @@
 /// this contract will contain mostly the address of ceo , cfo , cto and pausing and unpausing of contract
 
-
 pragma solidity ^0.4.11;
 contract LockAccessControl {
     event ContractUpgrade(address newContract);
@@ -8,6 +7,7 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
+    address public callbackAddress;
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
@@ -16,6 +16,11 @@ contract LockAccessControl {
     modifier onlyCEO() {
         require(msg.sender == ceoAddress);
         _;
+    }
+    modifier onlyCallBackAddress() {
+        require(msg.sender == callbackAddress);
+        _;
+
     }
 
     /// @dev Access modifier for CFO-only functionality
@@ -45,6 +50,12 @@ contract LockAccessControl {
         require(_newCEO != address(0));
 
         ceoAddress = _newCEO;
+    }
+
+    // for setting callbackaddress for calling --callback
+    function setCallBackAddress(address _newCallBackAddress) external onlyCLevel {
+        require(_newCallBackAddress != address(0));
+        callbackAddress = _newCallBackAddress;
     }
 
     /// @dev Assigns a new address to act as the CFO. Only available to the current CEO.

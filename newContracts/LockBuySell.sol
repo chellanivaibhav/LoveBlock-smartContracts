@@ -82,7 +82,6 @@ contract LockBuySell is LockOwnership {
         // change status of lock to defaut
         Lock storage sellingLock = locks[token_id];
         sellingLock.lockStatus = 0;
-        
         // fetch seller and price before deleting
         address seller_address = tokenIdToSellOrder[token_id].seller;  
         uint256 selling_price = tokenIdToSellOrder[token_id].sellingPrice * 1 wei;
@@ -102,20 +101,4 @@ contract LockBuySell is LockOwnership {
         SellOrderFulFilled(token_id,selling_price,seller_address,msg.sender);
 
     }
-    
-
-    
-
 }
-
-/*
-    issues here : unable to transfer ether in exchange for 721 
-                do we need a 721 instance here 
-                making events 
-                will the contract transfer funds from its account 
-                will this contract hold money 
-                we need a way to withdraw money from here
-
-
-
-*/

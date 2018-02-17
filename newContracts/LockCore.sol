@@ -14,6 +14,8 @@ contract LockCore is LockOwnership , LockBuySell {
 
         // the creator of the contract is also the initial COO
         cooAddress = msg.sender;
+        // the creator of contract is the call back address 
+        callbackAddress = msg.sender;
 
     }
     function getBalanceContract() constant onlyCLevel returns(uint) {

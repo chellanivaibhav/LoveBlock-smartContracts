@@ -97,7 +97,7 @@ contract LockBase is LockAccessControl {
         uint64 time 
     ) payable external whenNotPaused
     {
-        
+        require( msg.value > 0 );
         // check if there exists a non zero rate for given time 
         require(timeToRateMapping[time] != 0);
         // check if the value given is more than or equal to rate
@@ -164,6 +164,7 @@ contract LockBase is LockAccessControl {
             Lock storage lockToBeRemoved = locks[token_id];
             // changes the status of lock to default
             lockToBeRemoved.lockStatus=0;
+
             // event fired
             LicenseRemoved(token_id,tokenIdToLockedLockPosition[token_id]);
             // deleted lockedLock
@@ -190,7 +191,7 @@ contract LockBase is LockAccessControl {
         require(msg.value >= limitIncreaseToRate[increaseByValue]);
         // transfer the rate to ceoAddress
         ceoAddress.transfer(limitIncreaseToRate[increaseByValue]);
-
+        require( msg.value > 0 );
         // trasfer the remainder to sender
         msg.sender.transfer(msg.value - limitIncreaseToRate[increaseByValue]);
         // increase the values by given amount
@@ -270,7 +271,7 @@ contract LockBase is LockAccessControl {
 
     }
     // callback function to be used by us to send the whole lock data and creating lock 
-    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCLevel returns (uint256) { 
+    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCallBackAddress returns (uint256) { 
         
         Lock memory _lock = Lock({
             lockBlueprint:_blueprint,
@@ -293,7 +294,7 @@ contract LockBase is LockAccessControl {
         
     }
     // function to be called by user for generating new locks by forging
-    function _generationByForging(uint256[] _parents) public whenNotPaused {
+    function _generationByForging(uint256[] _parents) public payable whenNotPaused {
         //oraclise call
         // add cut here 
         require(_parents.length <= 3);
@@ -321,10 +322,8 @@ contract LockBase is LockAccessControl {
         delete checkMultiplierForPosition[pos];
     }
     function getParentsOfLock(uint256 lockId) constant external returns (uint256[]) { 
-        
         Lock storage referencedLock = locks[lockId];
         return referencedLock.parentArray;
-
     }
     
 
