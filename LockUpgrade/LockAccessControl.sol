@@ -100,6 +100,3 @@ contract LockAccessControl {
         paused = false;
     }
 }
-
-// things to be done here
-// everything seems sorted over here
