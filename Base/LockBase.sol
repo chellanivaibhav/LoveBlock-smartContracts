@@ -74,7 +74,10 @@ contract LockBase is LockAccessControl {
     // connect time and rate for licensing
     mapping (uint64 => uint256) public timeToRateMapping;
     uint256 public lastPosition=0;
-
+    // used in generation by forging 
+    uint256 public maxNumberOfParents = 3;
+    // auction smart contract address
+    address public AuctionContract;
     /*LICENSING STUFF */
     function addRateAndTime(uint64 time, uint256 rateInWei) onlyCLevel {
         timeToRateMapping[time] = rateInWei;
@@ -85,7 +88,13 @@ contract LockBase is LockAccessControl {
         LicenseRateTimeRemoved(time,timeToRateMapping[time]);
         delete timeToRateMapping[time];
     }
+    function setAuctionContractAddress (address AuctionContractAddress) onlyCLevel {
+        AuctionContract=AuctionContractAddress;
+    }
 
+    function AddMaxNumberOfParents(uint numberOfParents) onlyCLevel {
+        maxNumberOfParents=numberOfParents;
+    }
     // function for adding the plans to upgrade account
     function addLimitAndRate(uint256 limit, uint256 rate) onlyCLevel {
         // limit has to be multiple of 5
@@ -153,7 +162,7 @@ contract LockBase is LockAccessControl {
 
     }
     // callback function to be used by us to send the whole lock data and creating lock
-    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCLevel returns (uint256) {
+    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCallBack returns (uint256) {
 
         Lock memory _lock = Lock({
         lockBlueprint:_blueprint,
@@ -179,7 +188,7 @@ contract LockBase is LockAccessControl {
     function _generationByForging(uint256[] _parents) public whenNotPaused {
         //oraclise call
         // add cut here
-        require(_parents.length <= 3);
+        require(_parents.length <= maxNumberOfParents);
         for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
             require(lockIndexToOwner[_parents[i]]==msg.sender);
         }

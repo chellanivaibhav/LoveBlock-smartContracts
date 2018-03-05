@@ -5,3 +5,16 @@
 - adding code for generation by forging (done)
 - change base address of LockBase in sibling contract from lockAccesssControl (to be done in all )
 - ask if number of parents will remain less than equal to 3
+
+
+
+steps to execute  
+
+1. base2, storage 
+2. license +upgrade with address of base in constr
+3. buy sell , put base and storage address 
+4. license+upgrade+sell in base 
+5. buysell in storage
+6. unpause 
+7. ratetotime 
+8. limittorate 
