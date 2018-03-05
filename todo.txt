@@ -1,20 +1,25 @@
-- remove struct from the lockLicense 
-- remove multiple copies of lockAccesssControl and make a single copy 
-- migrate buy sell storage to buy sell 
-- making new address for callback 
+- remove struct from the lockLicense  (done)
+- remove multiple copies of lockAccesssControl and make a single copy (not to be done to give individual contracts ability to pause/unpause)
+- migrate buy sell storage to buy sell (done)
+- making new address for callback (done)
 - adding code for generation by forging (done)
 - change base address of LockBase in sibling contract from lockAccesssControl (to be done in all )
-- ask if number of parents will remain less than equal to 3
+- ask if number of parents will remain less than equal to 3(done)
 
 
 
 steps to execute  
 
-1. base2, storage 
-2. license +upgrade with address of base in constr
-3. buy sell , put base and storage address 
+1. base(0x692a70d2e424a56d2c6c27aa97d1a86395877b3a), storage (0x4d297045d0cab5bf8b2845afa4680eebf6c7a991)
+2. license(0x679f3f7ccc76cf571ca09a0fe05fbfb8419d5d5c) +upgrade with address of base in constr(0x85450acb2134e76c5f112f08ba1a6873c610ed79)
+3. buy sell , put base and storage address (0x84d892ea2c60bda999d7657a4035ea6afb3a52cb)
 4. license+upgrade+sell in base 
 5. buysell in storage
 6. unpause 
-7. ratetotime 
-8. limittorate 
+7. ratetotime (1,1eth)
+8. limittorate (5,1eth)
+
+Question:
+1. do we need auction contract address in base .
+
+cost : 38USD (base deployment)+2.81(storage)+
