@@ -5,6 +5,7 @@ import "./LockAccessControl.sol";
 
 contract LockBase is LockAccessControl {
     function LockBase() {
+        // ask  why
         //Initialises 0th position(also 0 lockID) of locked locks.
         LockedLock memory firstLockedLock = LockedLock({
         partner : "none",
@@ -14,6 +15,10 @@ contract LockBase is LockAccessControl {
         lockedLocks[0] = firstLockedLock;
         checkIfFilled[0] = true;
         lockedLocksCount = 0;
+    }
+    uint256 public forgingFees =500000000000000000 * 1 wei ;
+    function setForgingFee(uint256 _fee) external onlyCLevel {
+        forgingFees = _fee;
     }
     // events to be generated
     // transfer
@@ -174,6 +179,14 @@ contract LockBase is LockAccessControl {
     function _generationByForging(uint256[] _parents) public whenNotPaused {
         //oraclise call
         // add cut here
+        require(_parents.length <= 3);
+        for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
+            require(lockIndexToOwner[_parents[i]]==msg.sender);
+        }
+        require(msg.value > forgingFees);
+        ceoAddress.transfer(forgingFees);
+        msg.sender.transfer(msg.value - forgingFees);
+
         EventGenerationByForging(_parents,msg.sender);
     }
 
@@ -255,11 +268,11 @@ contract LockBase is LockAccessControl {
         return(locks[_id].lockStatus);
     }
     /* Lock Getter */
-    function GETlockletterLim(uint256 _id) external view RWAccess returns (uint256 _lettersLimit){
+    function GETlockletterLim(uint256 _id) external view RWAccess returns (uint256 _lettersLimit) {
         return(locks[_id].lettersLimit);
     }
     /* Lock Getter */
-    function GETlockpicsLim(uint256 _id) external view RWAccess returns (uint256 _picslimit){
+    function GETlockpicsLim(uint256 _id) external view RWAccess returns (uint256 _picslimit) {
         // Lock memory l = locks[_id];
         return(locks[_id].picsLimit);
     }
@@ -296,11 +309,11 @@ contract LockBase is LockAccessControl {
         delete lockedLocks[_pos];
     }
     /* Increments locked locks count */
-    function incrementLockedLocksCount() external RWAccess{
+    function incrementLockedLocksCount() external RWAccess {
         lockedLocksCount++;
     }
     /* Decrements locked locks count */
-    function decrementLockedLocksCount() external RWAccess{
+    function decrementLockedLocksCount() external RWAccess {
         lockedLocksCount--;
     }
     /* Increments last position */
@@ -308,7 +321,7 @@ contract LockBase is LockAccessControl {
         lastPosition++;
     }
     /* Last Position Setter */
-    function SETlastPosition(uint _pos) external RWAccess{
+    function SETlastPosition(uint _pos) external RWAccess {
         lastPosition = _pos;
     }
 }

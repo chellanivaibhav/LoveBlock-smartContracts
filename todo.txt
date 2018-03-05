@@ -1,0 +1,7 @@
+- remove struct from the lockLicense 
+- remove multiple copies of lockAccesssControl and make a single copy 
+- migrate buy sell storage to buy sell 
+- making new address for callback 
+- adding code for generation by forging (done)
+- change base address of LockBase in sibling contract from lockAccesssControl (to be done in all )
+- ask if number of parents will remain less than equal to 3

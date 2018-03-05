@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./LockAccessControl.sol";
 
-contract lockBase{
+contract LockBase {
 
     /*strcts*/
     struct Lock {
@@ -83,14 +83,14 @@ contract lockBase{
 }
 
 
-contract LockUpgrade is LockAccessControl{
+contract LockUpgrade is LockAccessControl {
 
     /** Events */
     event LockUpgraded (uint lockid, uint256 increaseByValue);
 
-    lockBase baseContract;
-    function LockUpgrade(address baseAddr){
-        baseContract = lockBase(baseAddr);
+    LockBase baseContract;
+    function LockUpgrade(address baseAddr) {
+        baseContract = LockBase(baseAddr);
         ceoAddress = msg.sender;
         cfoAddress = msg.sender;
         cooAddress = msg.sender;

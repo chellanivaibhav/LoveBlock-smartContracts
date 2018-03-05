@@ -1,12 +1,11 @@
 pragma solidity ^0.4.11;
 import "./LockAccessControl.sol";
 
-// this is how it will work
-// call
 
-contract LockBuySell is LockAccessControl{
 
-    function LockBuySell(){
+contract LockBuySell is LockAccessControl {
+
+    function LockBuySell() {
         ceoAddress = msg.sender;
         cfoAddress = msg.sender;
         cooAddress = msg.sender;

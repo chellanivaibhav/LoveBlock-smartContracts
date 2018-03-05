@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./LockAccessControl.sol";
 
-contract lockBase{
+contract LockBase {
 
     /*strcts*/
     struct Lock {
@@ -48,10 +48,10 @@ contract lockBase{
 
 
     /** Setters */
-    function ADDlockedLocks(uint256 _lockId, string _message, string _partner) external {}
-    function SETlockIndexToOwner(uint256 _lockId, address _address) external {}
-    function SETownershipTokenCount(address _addr, uint _count) external  {}
-    function SETlockIndexToApproved(uint256 _id,address _addr) external  {}
+    function ADDlockedLocks(uint256 _lockId, string _message, string _partner) external { }
+    function SETlockIndexToOwner(uint256 _lockId, address _address) external { }
+    function SETownershipTokenCount(address _addr, uint _count) external { }
+    function SETlockIndexToApproved(uint256 _id,address _addr) external { }
     function SETlimitIncreaseToRate(uint256 _id, uint _increment) external {}
     function SETcheckMultiplierForPosition(uint256 _id,uint _multiplier) external {}
     function SETcheckIfFilled(uint256 _id,bool _boolean) external {}
@@ -108,11 +108,11 @@ contract BuySellStorage {
     function ADDsellOrder(uint _lock_id,address _sellerAddr,uint _sellingPrice,uint _status) external {}
     function GETsellOrderAddress(uint _lock_id) external returns (address) {}
     function GETsellOrderSellingPrice(uint _lock_id) external returns (uint) {}
-}
+} 
 
 contract LockBuySell is LockAccessControl {
     BuySellStorage buysellstorage;
-    lockBase baseContract;
+    LockBase baseContract;
 
     uint256 public cut=3;
     function setCut(uint256 _cut) external onlyCLevel {
@@ -120,7 +120,7 @@ contract LockBuySell is LockAccessControl {
     }
 
     function LockBuySell(address baseLockAddr, address _buysellstorageAddr) {
-        baseContract = lockBase(baseLockAddr);
+        baseContract = LockBase(baseLockAddr);
         buysellstorage = BuySellStorage(_buysellstorageAddr);
         ceoAddress = msg.sender;
         cfoAddress = msg.sender;
