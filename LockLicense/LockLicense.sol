@@ -2,9 +2,9 @@ pragma solidity ^0.4.11;
 
 import "./LockAccessControl.sol";
 
-contract lockBase{
+contract LockBase {
 
-    /*strcts*/
+    /*structs*/
     struct Lock {
     string lockBlueprint;
     uint64 creationTime;
@@ -79,10 +79,8 @@ contract lockBase{
     function REMOVElockedLocks(uint256 _pos) external{}
     function DELETEtokenIdToLockedLockPosition(uint256 _id) external {}
 }
-
-
-contract license_Lock is LockAccessControl {
-    lockBase baseContract;
+contract LicenseLock is LockAccessControl {
+    LockBase baseContract;
 
     /*Events*/
     event LicenseGiven(uint256,uint256,uint64,string,string,address);
@@ -111,8 +109,8 @@ contract license_Lock is LockAccessControl {
     }
 
     /* Constructor */
-    function license_Lock(address baseAddr){
-        baseContract = lockBase(baseAddr);
+    function license_Lock(address baseAddr) {
+        baseContract = LockBase(baseAddr);
         ceoAddress = msg.sender;
         cfoAddress = msg.sender;
         cooAddress = msg.sender;
