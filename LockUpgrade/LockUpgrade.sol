@@ -5,7 +5,7 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
-
+    
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
 
@@ -93,72 +93,15 @@ contract LockAccessControl {
 }
 
 contract LockBase {
-
-    /*strcts*/
-    struct Lock {
-    string lockBlueprint;
-    uint64 creationTime;
-    //parent id array
-    uint256[] parentArray;
-    // we wont be able to store the incoming info directly
-    //mapping (uint256 => uint256) parentArray;
-    // status means onrent, for sale , locked , unlocked and more
-    // for now lets assume , 0 is the default , unlocked,unrented,notonsale
-    // 2 means on sale
-    // 1 means on chain
-    uint256 lockStatus;
-    uint256 lettersLimit;
-    uint256 picsLimit;
-    }
-
-    struct LockedLock {
-    string message;
-    string partner;
-    }
-
-    // this array will store all locks , we give id we get lock object , simple and sweet !
-    Lock[] public locks;
-
-    /*Variables*/
-    uint256 public lockedLocksCount;
-    uint256 public lastPosition;
-
     /*Mappings*/
-    // this array will contain all the locked locks
-    mapping(uint256 => LockedLock) public lockedLocks;
-    // checks position and returns if its filled or not , returns true if filled else false
-    mapping (uint256 => bool) public checkIfFilled;
     // this will track the amount to increase in no of pic and letter limit with corresponding rate
     mapping (uint256 => uint256) public limitIncreaseToRate;
-    // connects lockid and locked lock position
-    mapping (uint256 => uint256) public tokenIdToLockedLockPosition;
-    // maps the multiplier for each position
-    mapping (uint256 => uint256) public checkMultiplierForPosition;
-    // connect time and rate for licensing
-    mapping (uint64 => uint256) public timeToRateMapping;
+
     mapping(uint256 => address) public lockIndexToOwner;
 
 
-    /** Setters */
-    function ADDlockedLocks(uint256 _lockId, string _message, string _partner) external {}
-    function SETlockIndexToOwner(uint256 _lockId, address _address) external {}
-    function SETownershipTokenCount(address _addr, uint _count) external  {}
-    function SETlockIndexToApproved(uint256 _id,address _addr) external  {}
-    function SETlimitIncreaseToRate(uint256 _id, uint _increment) external {}
-    function SETcheckMultiplierForPosition(uint256 _id,uint _multiplier) external {}
-    function SETcheckIfFilled(uint256 _id,bool _boolean) external {}
-    function SETtokenIdToLockedLockPosition(uint256 _id, uint _pos) external {}
-    function SETtimeToRateMapping(uint64 _time, uint256 _rate) external {}
-    function SETlastPosition(uint256 _pos) external {}
-    function incrementLockedLocksCount() external {}
-    function decrementLockedLocksCount() external {}
-    function incrementLastPosition() external {}
-
+    
     /** Lock Getters */
-    function get_Lock_blueprint(uint256 _id) external view returns (string _blueprint){}
-    function get_Lock_creationTime(uint256 _id) external view returns (uint64 _creationtime){}
-    function get_Lock_parents(uint256 _id) external view returns (uint256[] _parentIds){}
-    function GETlockStatus(uint256 _id) external view returns (uint256 _lockStatus){}
     function GETlockletterLim(uint256 _id) external view returns (uint256 _lettersLimit){}
     function GETlockpicsLim(uint256 _id) external view returns (uint256 _picslimit){}
 
@@ -167,9 +110,6 @@ contract LockBase {
     function SETlockletterLim(uint256 _id, uint256 _letterLim) external {}
     function SETlockpicLim(uint256 _id,uint256 _picLim) external {}
 
-    /** Lock Removers */
-    function REMOVElockedLocks(uint256 _pos) external{}
-    function DELETEtokenIdToLockedLockPosition(uint256 _id) external {}
 }
 
 
@@ -181,7 +121,6 @@ contract LockUpgrade is LockAccessControl {
     LockBase baseContract;
     function setBaseContractAddress(address _newBaseAddr) external onlyCLevel {
         require(_newBaseAddr != address(0));
-
         baseContract = LockBase(_newBaseAddr);
     }
     function LockUpgrade(address baseAddr) {

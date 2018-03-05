@@ -333,4 +333,8 @@ contract LockBase is LockAccessControl {
     function SETlastPosition(uint _pos) external RWAccess {
         lastPosition = _pos;
     }
+    function getParentsOfLock(uint256 lockId) constant external returns (uint256[]) {
+       Lock storage referencedLock = locks[lockId];
+       return referencedLock.parentArray;
+   }
 }
