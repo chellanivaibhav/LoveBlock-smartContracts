@@ -32,12 +32,12 @@ contract LockAccessControl {
     /// @dev Access modifier for BuySell implementation functionality
     modifier onlyRWAccess() {
         require(
-            msg.sender == lockBuySell ||
-            msg.sender == cooAddress ||
-            msg.sender == ceoAddress ||
-            msg.sender == cfoAddress ||
-            msg.sender == extraAddress
-            );
+        msg.sender == lockBuySell ||
+        msg.sender == cooAddress ||
+        msg.sender == ceoAddress ||
+        msg.sender == cfoAddress ||
+        msg.sender == extraAddress
+        );
         _;
     }
 
@@ -161,11 +161,11 @@ contract LockBuySellStorage is LockAccessControl {
         tokenIdToSellOrder[_lock_id] = _sellorder;
     }
 
-    function GETsellOrderAddress(uint256 _lock_id) external onlyRWAccess returns (address) {
+    function GETsellOrderAddress(uint256 _lock_id) external view onlyRWAccess returns (address) {
         return(tokenIdToSellOrder[_lock_id].seller);
     }
 
-    function GETsellOrderSellingPrice(uint256 _lock_id) external onlyRWAccess returns (uint256) {
+    function GETsellOrderSellingPrice(uint256 _lock_id) external view onlyRWAccess returns (uint256) {
         return(tokenIdToSellOrder[_lock_id].sellingPrice);
     }
 }
