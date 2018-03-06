@@ -211,7 +211,7 @@ contract LockBuySell is LockAccessControl {
 
         buysellstorage = BuySellStorage(_newBuySellStorage);
     }
-    uint256 public cut=3;
+    uint256 public cut=300;
     function setCut(uint256 _cut) external onlyCLevel {
         cut = _cut;
     }
@@ -237,9 +237,9 @@ contract LockBuySell is LockAccessControl {
         // checks if the owner is msg.sender , only the owner can put sell order
         require(baseContract._owns(msg.sender, _lock_id));
         uint256 value= price * 1 wei;
-        require(msg.value >= (cut*value)/100);
-        ceoAddress.transfer((cut*value)/100);
-        msg.sender.transfer(msg.value - (cut*value)/100);
+        require(msg.value >= (cut/100*value)/100);
+        ceoAddress.transfer((cut/100*value)/100);
+        msg.sender.transfer(msg.value - (cut/100*value)/100);
         // TODO check if lock with this tokenid exists
         // Lock storage sellingLock = locks[_lock_id];
         uint256 lock_status = baseContract.GETlockStatus(_lock_id);
@@ -279,11 +279,11 @@ contract LockBuySell is LockAccessControl {
         // fetch seller and price before deleting
         address seller_address = buysellstorage.GETsellOrderAddress(token_id);
         uint256 selling_price = buysellstorage.GETsellOrderSellingPrice(token_id) * 1 wei;
-        require(selling_price + (selling_price*cut)/100 <= msg.value);
+        require(selling_price + (selling_price*cut/100)/100 <= msg.value);
 
-        ceoAddress.transfer((selling_price*cut)/100);
+        ceoAddress.transfer((selling_price*cut/100)/100);
         seller_address.transfer(selling_price);
-        msg.sender.transfer(msg.value - (selling_price + (selling_price*3)/100));
+        msg.sender.transfer(msg.value - (selling_price + (selling_price*cut/100)/100));
         // delete sell order to prevent reentrancy attack
         buysellstorage.DELETEsellOrder(token_id);
 

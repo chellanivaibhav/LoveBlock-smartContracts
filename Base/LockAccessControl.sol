@@ -12,6 +12,8 @@ contract LockAccessControl {
     address public lockUpgradeAddress;
     address public lockBuySellAddress;
     address public lockLicenseAddress;
+    address public ExtraAddress1;
+    address public ExtraAddress2;
 
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
@@ -130,6 +132,20 @@ contract LockAccessControl {
         require(_newLockLicenseAddr != address(0));
 
         lockLicenseAddress = _newLockLicenseAddr;
+    }
+
+    /// @dev Assigns a new address for an extra contract. Only available to the current CEO.
+    function setExtraAddress1(address _newExtraAddr1) external onlyCEO {
+        require(_newExtraAddr1 != address(0));
+
+        ExtraAddress1 = _newExtraAddr1;
+    }
+
+    /// @dev Assigns a new address for an extra contract. Only available to the current CEO.
+    function setExtraAddress2(address _newExtraAddr2) external onlyCEO {
+        require(_newExtraAddr2 != address(0));
+
+        ExtraAddress2 = _newExtraAddr2;
     }
 
     /*** Pausable functionality adapted from OpenZeppelin ***/
