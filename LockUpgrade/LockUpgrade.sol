@@ -118,7 +118,7 @@ contract LockUpgrade is LockAccessControl {
     /** Events */
     event LockUpgraded (uint lockid, uint256 increaseByValue);
 
-    LockBase baseContract;
+    LockBase public baseContract;
     function setBaseContractAddress(address _newBaseAddr) external onlyCLevel {
         require(_newBaseAddr != address(0));
         baseContract = LockBase(_newBaseAddr);

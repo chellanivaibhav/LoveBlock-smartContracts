@@ -8,10 +8,10 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
-    // address public callbackAddress;
-    address public lockUpgrade;
-    address public lockBuySell;
-    address public lockLicense;
+    address public callbackAddress;
+    address public lockUpgradeAddress;
+    address public lockBuySellAddress;
+    address public lockLicenseAddress;
 
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
@@ -20,6 +20,10 @@ contract LockAccessControl {
     /// @dev Access modifier for CEO-only functionality
     modifier onlyCEO() {
         require(msg.sender == ceoAddress);
+        _;
+    }
+    modifier onlyCallBack() {
+        require(msg.sender == callbackAddress);
         _;
     }
 
@@ -37,19 +41,19 @@ contract LockAccessControl {
 
     /// @dev Access modifier for LockBuySell contract functionality
     modifier onlyBuySell() {
-        require(msg.sender == lockBuySell);
+        require(msg.sender == lockBuySellAddress);
         _;
     }
 
     /// @dev Access modifier for LockUpgrade contract functionality
     modifier onlyUpgrade() {
-        require(msg.sender == lockUpgrade);
+        require(msg.sender == lockUpgradeAddress);
         _;
     }
 
     /// @dev Access modifier for LockLicense contract functionality
     modifier onlyLicense() {
-        require(msg.sender == lockLicense);
+        require(msg.sender == lockLicenseAddress);
         _;
     }
 
@@ -64,9 +68,9 @@ contract LockAccessControl {
 
     modifier RWAccess() {
         require(
-        msg.sender == lockLicense ||
-        msg.sender == lockUpgrade ||
-        msg.sender == lockBuySell ||
+        msg.sender == lockLicenseAddress ||
+        msg.sender == lockUpgradeAddress ||
+        msg.sender == lockBuySellAddress ||
         // just in case.
         msg.sender == ceoAddress ||
         msg.sender == address(this)
@@ -98,34 +102,34 @@ contract LockAccessControl {
         cfoAddress = _newCFO;
     }
 
-    // for setting callbackaddress for calling --callback
-    // function setCallBackAddress(address _newCallBackAddress) external onlyCLevel {
-    //     require(_newCallBackAddress != address(0));
-    //     callbackAddress = _newCallBackAddress;
-    // }
+    
+    function setCallBackAddress(address _newCallBackAddress) external onlyCLevel {
+         require(_newCallBackAddress != address(0));
+         callbackAddress = _newCallBackAddress;
+     }
 
     /// @dev Assigns a new address for LockUpgrade contract. Only available to the current CEO.
     /// @param _newLockUpgradeAddr The address of the new LockUpgrade contract
-    function setLockUpgrade(address _newLockUpgradeAddr) external onlyCEO {
+    function setLockUpgradeAddress(address _newLockUpgradeAddr) external onlyCEO {
         require(_newLockUpgradeAddr != address(0));
 
-        lockUpgrade = _newLockUpgradeAddr;
+        lockUpgradeAddress = _newLockUpgradeAddr;
     }
 
     /// @dev Assigns a new address for LockBuySell contract. Only available to the current CEO.
     /// @param _newLockBuySellAddr The address of the new LockBuySell contract
-    function setLockBuySell(address _newLockBuySellAddr) external onlyCEO {
+    function setLockBuySellAddress(address _newLockBuySellAddr) external onlyCEO {
         require(_newLockBuySellAddr != address(0));
 
-        lockBuySell = _newLockBuySellAddr;
+        lockBuySellAddress = _newLockBuySellAddr;
     }
 
     /// @dev Assigns a new address for LockLicense contract. Only available to the current CEO.
     /// @param _newLockLicenseAddr The address of the new LockLicense contract
-    function setLockLicense(address _newLockLicenseAddr) external onlyCEO {
+    function setLockLicenseAddress(address _newLockLicenseAddr) external onlyCEO {
         require(_newLockLicenseAddr != address(0));
 
-        lockLicense = _newLockLicenseAddr;
+        lockLicenseAddress = _newLockLicenseAddr;
     }
 
     /*** Pausable functionality adapted from OpenZeppelin ***/

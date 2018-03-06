@@ -6,6 +6,7 @@ contract LockAccessControl {
     address public cfoAddress;
     address public cooAddress;
     address public lockBuySell;
+    address public extraAddress;
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
@@ -30,7 +31,13 @@ contract LockAccessControl {
 
     /// @dev Access modifier for BuySell implementation functionality
     modifier onlyRWAccess() {
-        require(msg.sender == lockBuySell);
+        require(
+            msg.sender == lockBuySell ||
+            msg.sender == cooAddress ||
+            msg.sender == ceoAddress ||
+            msg.sender == cfoAddress ||
+            msg.sender == extraAddress
+            );
         _;
     }
 
@@ -71,6 +78,11 @@ contract LockAccessControl {
     function setLockBuySell(address _newLockBuySellAddress) external onlyCLevel {
         require(_newLockBuySellAddress != address(0));
         lockBuySell = _newLockBuySellAddress;
+    }
+    // for setting LockBuySell implementation contract address
+    function setExtraAddress(address _newExtraAddress) external onlyCLevel {
+        require(_newExtraAddress != address(0));
+        extraAddress = _newExtraAddress;
     }
 
     /*** Pausable functionality adapted from OpenZeppelin ***/
@@ -126,8 +138,13 @@ contract LockBuySellStorage is LockAccessControl {
     // mapping to get the no of sell orders per address
     mapping(address => uint256) sellOrderCount;
 
-    function _isOnSale(uint256 _tokenId) external view onlyRWAccess returns(bool) {
-        return (tokenIdToSellOrder[_tokenId].status == 1);
+    function _isOnSale(uint256 _tokenId) external constant onlyRWAccess returns(bool) {
+        if(tokenIdToSellOrder[_tokenId].status == 1){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     function DELETEsellOrder(uint256 _tokenId) external onlyRWAccess {
         delete tokenIdToSellOrder[_tokenId];

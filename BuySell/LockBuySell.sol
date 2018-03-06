@@ -59,13 +59,6 @@ contract LockAccessControl {
 
         cooAddress = _newCOO;
     }
-
-    /// @dev Assigns a new address for base contract. Just in case!
-    /// @param _newBaseAddr The address of the new base contract
-    
-
-    
-
     /*** Pausable functionality adapted from OpenZeppelin ***/
 
     /// @dev Modifier to allow actions only when the contract IS NOT paused
@@ -205,8 +198,8 @@ contract BuySellStorage {
 } 
 
 contract LockBuySell is LockAccessControl {
-    BuySellStorage buysellstorage;
-    LockBase baseContract;
+    BuySellStorage public buysellstorage;
+    LockBase public baseContract;
     function setBaseContractAddress(address _newBaseAddr) external onlyCLevel {
         require(_newBaseAddr != address(0));
         baseContract = LockBase(_newBaseAddr);
@@ -264,7 +257,7 @@ contract LockBuySell is LockAccessControl {
     }
 
     // checks if the sender is owner of lock , checks if the lock is on sale
-    function cancelSellOrder(uint256 token_id) whenNotPaused {
+    function cancelSellOrder(uint256 token_id)  {
         // check if the msg.sender owns the lock
         require(baseContract._owns(msg.sender,token_id));
         //check if the lock is on sale

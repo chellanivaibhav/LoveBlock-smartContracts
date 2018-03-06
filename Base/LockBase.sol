@@ -5,7 +5,6 @@ import "./LockAccessControl.sol";
 
 contract LockBase is LockAccessControl {
     function LockBase() {
-        // ask  why
         //Initialises 0th position(also 0 lockID) of locked locks.
         LockedLock memory firstLockedLock = LockedLock({
         partner : "none",
@@ -76,8 +75,6 @@ contract LockBase is LockAccessControl {
     uint256 public lastPosition=0;
     // used in generation by forging 
     uint256 public maxNumberOfParents = 3;
-    // auction smart contract address
-    address public AuctionContract;
     /*LICENSING STUFF */
     function addRateAndTime(uint64 time, uint256 rateInWei) onlyCLevel {
         timeToRateMapping[time] = rateInWei;
@@ -87,9 +84,6 @@ contract LockBase is LockAccessControl {
     function removeRateAndTime(uint64 time) onlyCLevel {
         LicenseRateTimeRemoved(time,timeToRateMapping[time]);
         delete timeToRateMapping[time];
-    }
-    function setAuctionContractAddress (address AuctionContractAddress) onlyCLevel {
-        AuctionContract=AuctionContractAddress;
     }
 
     function AddMaxNumberOfParents(uint numberOfParents) onlyCLevel {

@@ -168,8 +168,9 @@ contract LockBase {
     function REMOVElockedLocks(uint256 _pos) external{}
     function DELETEtokenIdToLockedLockPosition(uint256 _id) external {}
 }
+
 contract LicenseLock is LockAccessControl {
-    LockBase baseContract;
+    LockBase public baseContract;
     function setBaseContractAddress(address _newBaseAddr) external onlyCLevel {
         require(_newBaseAddr != address(0));
 
