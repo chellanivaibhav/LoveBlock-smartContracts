@@ -73,6 +73,8 @@ contract LockAccessControl {
         msg.sender == lockLicenseAddress ||
         msg.sender == lockUpgradeAddress ||
         msg.sender == lockBuySellAddress ||
+        msg.sender == ExtraAddress1 ||
+        msg.sender == ExtraAddress2
         // just in case.
         msg.sender == ceoAddress ||
         msg.sender == address(this)
