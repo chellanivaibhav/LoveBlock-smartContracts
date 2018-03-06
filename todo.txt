@@ -6,12 +6,15 @@
 - change base address of LockBase in sibling contract from lockAccesssControl (to be done in all )
 - ask if number of parents will remain less than equal to 3(done)
 
-
+TODO
+- change cut to percentage 
+- check isonsale
+- make the base contract objects in contract public so that we can see the value 
 
 steps to execute  
 
-1. base(0x692a70d2e424a56d2c6c27aa97d1a86395877b3a), storage (0x4d297045d0cab5bf8b2845afa4680eebf6c7a991)
-2. license(0x679f3f7ccc76cf571ca09a0fe05fbfb8419d5d5c) +upgrade with address of base in constr(0x85450acb2134e76c5f112f08ba1a6873c610ed79)
+1. base(0x0dcd2f752394c41875e259e00bb44fd505297caf), storage (0x08970fed061e7747cd9a38d680a601510cb659fb)
+2. license(0xbcaafb4802c27917d29449c8ab707ff6f86193ef) +upgrade with address of base in constr(0xdc04977a2078c8ffdf086d618d1f961b6c546222)
 3. buy sell , put base and storage address (0x84d892ea2c60bda999d7657a4035ea6afb3a52cb)
 4. license+upgrade+sell in base 
 5. buysell in storage
