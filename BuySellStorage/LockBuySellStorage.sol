@@ -128,15 +128,11 @@ contract LockBuySellStorage is LockAccessControl {
     struct SellOrder {
     address seller ;
     uint256 sellingPrice;
-    // status can be 0=inactive or cancelled , 1 = posted and active , 2= posted and fulfilled
-    uint status;
     uint lock_id;
     }
 
     /*** Storage**/
     mapping(uint256 => SellOrder) public tokenIdToSellOrder;
-    // mapping to get the no of sell orders per address
-    mapping(address => uint256) sellOrderCount;
 
     function _isOnSale(uint256 _tokenId) external constant onlyRWAccess returns(bool) {
         if(tokenIdToSellOrder[_tokenId].status == 1){
@@ -150,13 +146,12 @@ contract LockBuySellStorage is LockAccessControl {
         delete tokenIdToSellOrder[_tokenId];
     }
 
-    function ADDsellOrder(uint256 _lock_id,address _sellerAddr,uint256 _sellingPrice,uint256 _status) external onlyRWAccess {
+    function ADDsellOrder(uint256 _lock_id,address _sellerAddr,uint256 _sellingPrice) external onlyRWAccess {
         // TODO: all assertions should be taken care of in the implementation contracts
         SellOrder memory _sellorder = SellOrder({
         seller: _sellerAddr,
         sellingPrice: _sellingPrice,
         lock_id: _lock_id,
-        status: _status
         });
         tokenIdToSellOrder[_lock_id] = _sellorder;
     }

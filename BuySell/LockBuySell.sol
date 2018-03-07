@@ -192,7 +192,7 @@ contract BuySellStorage {
 
     function _isOnSale(uint256 _tokenId) external view returns(bool) {}
     function DELETEsellOrder(uint256 _tokenId) external {}
-    function ADDsellOrder(uint _lock_id,address _sellerAddr,uint _sellingPrice,uint _status) external {}
+    function ADDsellOrder(uint _lock_id,address _sellerAddr,uint _sellingPrice) external {}
     function GETsellOrderAddress(uint _lock_id) external returns (address) {}
     function GETsellOrderSellingPrice(uint _lock_id) external returns (uint) {}
 } 
@@ -250,7 +250,7 @@ contract LockBuySell is LockAccessControl {
 
         baseContract._approve(_lock_id,this);
         // creates sellOrder and sets tokenIdToSellOrder
-        buysellstorage.ADDsellOrder(_lock_id,msg.sender,value,1);
+        buysellstorage.ADDsellOrder(_lock_id,msg.sender,value);
         //checks overflow
         //emit sell event
         SellOrderCreated(_lock_id,value,msg.sender);
