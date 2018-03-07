@@ -151,7 +151,7 @@ contract LockBuySellStorage is LockAccessControl {
         SellOrder memory _sellorder = SellOrder({
         seller: _sellerAddr,
         sellingPrice: _sellingPrice,
-        lock_id: _lock_id,
+        lock_id: _lock_id
         });
         tokenIdToSellOrder[_lock_id] = _sellorder;
     }
