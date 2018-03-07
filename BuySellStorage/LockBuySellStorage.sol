@@ -147,7 +147,6 @@ contract LockBuySellStorage is LockAccessControl {
     }
 
     function ADDsellOrder(uint256 _lock_id,address _sellerAddr,uint256 _sellingPrice,uint256 _status ) external onlyRWAccess {
-        // TODO: all assertions should be taken care of in the implementation contracts
         SellOrder memory _sellorder = SellOrder({
         seller: _sellerAddr,
         sellingPrice: _sellingPrice,

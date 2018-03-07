@@ -158,6 +158,11 @@ contract LockBase is LockAccessControl {
     // callback function to be used by us to send the whole lock data and creating lock
     function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCallBack returns (uint256) {
 
+        require(_parents.length <= maxNumberOfParents);
+        for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
+            require(lockIndexToOwner[_parents[i]]==owner);
+        }
+
         Lock memory _lock = Lock({
         lockBlueprint:_blueprint,
         creationTime: uint64(now),
@@ -178,7 +183,7 @@ contract LockBase is LockAccessControl {
 
     }
     // function to be called by user for generating new locks by forging
-    function _generationByForging(uint256[] _parents) public whenNotPaused {
+    function _generationByForging(uint256[] _parents) public payable whenNotPaused {
         //oraclise call
         require(_parents.length <= maxNumberOfParents);
         for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
@@ -326,7 +331,7 @@ contract LockBase is LockAccessControl {
         lastPosition = _pos;
     }
     function getParentsOfLock(uint256 lockId) constant external returns (uint256[]) {
-       Lock storage referencedLock = locks[lockId];
-       return referencedLock.parentArray;
-   }
+        Lock storage referencedLock = locks[lockId];
+        return referencedLock.parentArray;
+    }
 }
