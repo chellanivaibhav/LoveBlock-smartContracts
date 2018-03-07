@@ -10,12 +10,6 @@ contract LockOwnership is LockBase , ERC721 {
     /**events  */
     event Approval(address from, address to, uint256 _tokenId);
 
-
-    uint256 public cut=3;
-    function setCut(uint256 _cut) external onlyCLevel {
-        cut=_cut;
-    }
-
     string public constant name = "LoveBlock";
     string public constant symbol = "LB";
 
@@ -139,8 +133,7 @@ contract LockOwnership is LockBase , ERC721 {
         // Safety check to prevent against an unexpected 0x0 default.
         require(_to != address(0));
         // Disallow transfers to this contract to prevent accidental misuse.
-        // The contract should never own any kitties (except very briefly
-        // after a gen0 cat is created and before it goes on auction).
+        // The contract should never own any locks (except very briefly)
         require(_to != address(this));
         // Check for approval and valid ownership
         require(this._approvedFor(msg.sender, _tokenId));

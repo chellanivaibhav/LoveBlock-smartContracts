@@ -170,7 +170,6 @@ contract LockBase is LockAccessControl {
         uint256 newLockId = locks.push(_lock) - 1;
         require(newLockId == uint256(uint32(newLockId)));
         // emit generation event
-        // execute _transferfunction
         // transefers newly generated locks to owner address
         this._transfer(0, owner, newLockId);
         LockCreated( owner,newLockId,_blueprint);
@@ -181,7 +180,6 @@ contract LockBase is LockAccessControl {
     // function to be called by user for generating new locks by forging
     function _generationByForging(uint256[] _parents) public whenNotPaused {
         //oraclise call
-        //TODO: add cut here
         require(_parents.length <= maxNumberOfParents);
         for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
             require(lockIndexToOwner[_parents[i]]==msg.sender);
