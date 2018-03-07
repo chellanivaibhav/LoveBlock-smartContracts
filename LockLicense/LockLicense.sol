@@ -207,7 +207,7 @@ contract LicenseLock is LockAccessControl {
         // check if the mutiplier exists and transfer accordingly
         if(baseContract.checkMultiplierForPosition(position)!=0) {
             ceoAddress.transfer(baseContract.timeToRateMapping(time)*baseContract.checkMultiplierForPosition(position));
-            msg.sender.transfer(msg.value - baseContract.timeToRateMapping(time));
+            msg.sender.transfer(msg.value - (baseContract.timeToRateMapping(time)*baseContract.checkMultiplierForPosition(position)));
         } else {
             ceoAddress.transfer(baseContract.timeToRateMapping(time));
             msg.sender.transfer(msg.value - baseContract.timeToRateMapping(time));
