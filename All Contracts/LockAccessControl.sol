@@ -106,11 +106,11 @@ contract LockAccessControl {
         cfoAddress = _newCFO;
     }
 
-    
+
     function setCallBackAddress(address _newCallBackAddress) external onlyCLevel {
-         require(_newCallBackAddress != address(0));
-         callbackAddress = _newCallBackAddress;
-     }
+        require(_newCallBackAddress != address(0));
+        callbackAddress = _newCallBackAddress;
+    }
 
     /// @dev Assigns a new address for LockUpgrade contract. Only available to the current CEO.
     /// @param _newLockUpgradeAddr The address of the new LockUpgrade contract

@@ -110,7 +110,7 @@ contract BuySellStorage {
     function ADDsellOrder(uint _lock_id,address _sellerAddr,uint _sellingPrice,uint _status) external {}
     function GETsellOrderAddress(uint _lock_id) external returns (address) {}
     function GETsellOrderSellingPrice(uint _lock_id) external returns (uint) {}
-} 
+}
 
 contract LockBuySell is LockAccessControl {
     BuySellStorage public buysellstorage;
@@ -155,11 +155,8 @@ contract LockBuySell is LockAccessControl {
         require(msg.value >= (cut/100*value)/100);
         ceoAddress.transfer((cut/100*value)/100);
         msg.sender.transfer(msg.value - (cut/100*value)/100);
-        // TODO check if lock with this tokenid exists
-        // Lock storage sellingLock = locks[_lock_id];
         uint256 lock_status = baseContract.GETlockStatus(_lock_id);
         require(lock_status == 0);
-        //TODO is this needed
         // sets lock status to 2
         baseContract.SETlockstatus(_lock_id,2);
 

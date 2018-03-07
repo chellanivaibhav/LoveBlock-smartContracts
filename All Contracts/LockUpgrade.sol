@@ -5,7 +5,7 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
-    
+
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
 
@@ -100,7 +100,7 @@ contract LockBase {
     mapping(uint256 => address) public lockIndexToOwner;
 
 
-    
+
     /** Lock Getters */
     function GETlockletterLim(uint256 _id) external view returns (uint256 _lettersLimit){}
     function GETlockpicsLim(uint256 _id) external view returns (uint256 _picslimit){}

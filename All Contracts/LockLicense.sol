@@ -137,7 +137,7 @@ contract LicenseLock is LockAccessControl {
     event LicenseGiven(uint256,uint256,uint64,string,string,address);
     event LicenseRemoved(uint256,uint256);
 
-    
+
     /* Constructor */
     function LicenseLock(address baseAddr) {
         baseContract = LockBase(baseAddr);
@@ -207,7 +207,7 @@ contract LicenseLock is LockAccessControl {
         // check if the mutiplier exists and transfer accordingly
         if(baseContract.checkMultiplierForPosition(position)!=0) {
             ceoAddress.transfer(baseContract.timeToRateMapping(time)*baseContract.checkMultiplierForPosition(position));
-            msg.sender.transfer(msg.value - baseContract.timeToRateMapping(time));
+            msg.sender.transfer(msg.value - (baseContract.timeToRateMapping(time)*baseContract.checkMultiplierForPosition(position)));
         } else {
             ceoAddress.transfer(baseContract.timeToRateMapping(time));
             msg.sender.transfer(msg.value - baseContract.timeToRateMapping(time));
