@@ -24,7 +24,7 @@ contract LockBase is LockAccessControl {
     // created new lock either from forging or from creation by ceo
     event Transfer(address from,address to,uint256 tokenId);
     event LockCreated(address, uint256,string);
-    event EventGenerationByForging(uint256[],address);
+    event EventGenerationByForging(uint256[],address,uint256);
     event LimitPlanAdded (uint256,uint256);
     event LimitPlanRemoved(uint256,uint256);
     event LicenseRateTimeAdded(uint256 ,uint256);
@@ -155,33 +155,7 @@ contract LockBase is LockAccessControl {
         return newLockId;
 
     }
-    // callback function to be used by us to send the whole lock data and creating lock
-    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit) onlyCallBack returns (uint256) {
-
-        require(_parents.length <= maxNumberOfParents);
-        for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
-            require(lockIndexToOwner[_parents[i]]==owner);
-        }
-
-        Lock memory _lock = Lock({
-        lockBlueprint:_blueprint,
-        creationTime: uint64(now),
-        parentArray:_parents,
-        lockStatus: 0,
-        lettersLimit: _letterLimit,
-        picsLimit : _picLimit
-        });
-
-        uint256 newLockId = locks.push(_lock) - 1;
-        require(newLockId == uint256(uint32(newLockId)));
-        // emit generation event
-        // transefers newly generated locks to owner address
-        this._transfer(0, owner, newLockId);
-        LockCreated( owner,newLockId,_blueprint);
-
-        return newLockId;
-
-    }
+    
     // function to be called by user for generating new locks by forging
     function _generationByForging(uint256[] _parents) public payable whenNotPaused {
         //oraclise call
@@ -192,8 +166,24 @@ contract LockBase is LockAccessControl {
         require(msg.value > forgingFees);
         ceoAddress.transfer(forgingFees);
         msg.sender.transfer(msg.value - forgingFees);
+        uint256[] memory a;
+        Lock memory _lock = Lock(
+        {
+        lockBlueprint:"null",
+        creationTime: uint64(now),
+        parentArray:a,
+        lockStatus: 9,
+        lettersLimit: 0,
+        picsLimit : 0
+        });
 
-        EventGenerationByForging(_parents,msg.sender);
+        uint256 newLockId = locks.push(_lock) - 1;
+        require(newLockId == uint256(uint32(newLockId)));
+        
+        EventGenerationByForging(_parents,msg.sender,newLockId);
+    }
+    function throwLockCreatedEvent(address owner,uint256 newLockId,string _blueprint) RWAccess {
+        LockCreated( owner,newLockId,_blueprint);
     }
 
     // adds multiplier for specific location
@@ -238,6 +228,13 @@ contract LockBase is LockAccessControl {
     function SETcheckMultiplierForPosition(uint256 _id,uint _multiplier) external RWAccess{
         checkMultiplierForPosition[_id] = _multiplier;
     }
+    function SETlockParent(uint256[] _parents,uint256 _id) external RWAccess{
+        Lock storage l = locks[_id];
+        l.parentArray = _parents;
+    }
+    
+    
+    
     /* Mapping Setter */
     function SETcheckIfFilled(uint256 _id,bool _boolean) external RWAccess{
         checkIfFilled[_id] = _boolean;
@@ -290,6 +287,10 @@ contract LockBase is LockAccessControl {
     function SETlockpicLim(uint256 _id,uint _picLim) external RWAccess{
         Lock storage l = locks[_id];
         l.picsLimit = _picLim;
+    }
+    function SETblueprint(string _blueprint, uint256 _id) external RWAccess {
+        Lock storage l = locks[_id];
+        l.lockBlueprint = _blueprint;
     }
     /* Mapping Remover */
     function DELETEtokenIdToLockedLockPosition(uint256 _id) external RWAccess{

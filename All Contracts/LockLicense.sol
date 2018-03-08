@@ -154,6 +154,7 @@ contract LicenseLock is LockAccessControl {
     uint64 time
     ) payable external whenNotPaused
     {
+        
         require( msg.value > 0 );
         // check if there exists a non zero rate for given time
         require(baseContract.timeToRateMapping(time) != 0);

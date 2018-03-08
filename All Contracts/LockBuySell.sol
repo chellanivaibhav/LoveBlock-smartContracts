@@ -170,6 +170,7 @@ contract LockBuySell is LockAccessControl {
 
     // checks if the sender is owner of lock , checks if the lock is on sale
     function cancelSellOrder(uint256 token_id)  {
+        require(baseContract.GETlockStatus(token_id)!=9);
         // check if the msg.sender owns the lock
         require(baseContract._owns(msg.sender,token_id));
         //check if the lock is on sale
@@ -183,6 +184,7 @@ contract LockBuySell is LockAccessControl {
     }
 
     function buySellOrder(uint256 token_id ) payable {
+        require(baseContract.GETlockStatus(token_id)!=9);       
         // check if the given lock is on sale
         require(buysellstorage._isOnSale(token_id));
         // sets lockStatus back to 0

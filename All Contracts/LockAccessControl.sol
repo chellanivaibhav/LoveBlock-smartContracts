@@ -8,12 +8,12 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
-    address public callbackAddress;
     address public lockUpgradeAddress;
     address public lockBuySellAddress;
     address public lockLicenseAddress;
     address public ExtraAddress1;
     address public ExtraAddress2;
+    address public ExtraAddress3;
 
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
@@ -24,10 +24,7 @@ contract LockAccessControl {
         require(msg.sender == ceoAddress);
         _;
     }
-    modifier onlyCallBack() {
-        require(msg.sender == callbackAddress);
-        _;
-    }
+    
 
     /// @dev Access modifier for CFO-only functionality
     modifier onlyCFO() {
@@ -75,6 +72,7 @@ contract LockAccessControl {
         msg.sender == lockBuySellAddress ||
         msg.sender == ExtraAddress1 ||
         msg.sender == ExtraAddress2 ||
+        msg.sender == ExtraAddress3 ||
         // just in case.
         msg.sender == ceoAddress ||
         msg.sender == address(this)
@@ -104,12 +102,6 @@ contract LockAccessControl {
         require(_newCFO != address(0));
 
         cfoAddress = _newCFO;
-    }
-
-
-    function setCallBackAddress(address _newCallBackAddress) external onlyCLevel {
-        require(_newCallBackAddress != address(0));
-        callbackAddress = _newCallBackAddress;
     }
 
     /// @dev Assigns a new address for LockUpgrade contract. Only available to the current CEO.
@@ -148,6 +140,13 @@ contract LockAccessControl {
         require(_newExtraAddr2 != address(0));
 
         ExtraAddress2 = _newExtraAddr2;
+    }
+    
+    /// @dev Assigns a new address for an extra contract. Only available to the current CEO.
+    function setExtraAddress3(address _newExtraAddr3) external onlyCEO {
+        require(_newExtraAddr3 != address(0));
+
+        ExtraAddress3 = _newExtraAddr3;
     }
 
     /*** Pausable functionality adapted from OpenZeppelin ***/

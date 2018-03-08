@@ -5,12 +5,17 @@ contract LockAccessControl {
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
+    address public callBackAddress;
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
 
     /// @dev Access modifier for CEO-only functionality
     modifier onlyCEO() {
+        require(msg.sender == ceoAddress);
+        _;
+    }
+    modifier onlyCallBack() {
         require(msg.sender == ceoAddress);
         _;
     }
@@ -42,6 +47,12 @@ contract LockAccessControl {
         require(_newCEO != address(0));
 
         ceoAddress = _newCEO;
+    }
+    
+    function setCallBack(address _newCallBackAddress) external onlyCLevel {
+        require(_newCallBackAddress != address(0));
+
+        callBackAddress = _newCallBackAddress;
     }
 
     /// @dev Assigns a new address to act as the CFO. Only available to the current CEO.
@@ -93,66 +104,49 @@ contract LockAccessControl {
 }
 
 contract LockBase {
-    /*Mappings*/
-    // this will track the amount to increase in no of pic and letter limit with corresponding rate
-    mapping (uint256 => uint256) public limitIncreaseToRate;
-
+    function throwLockCreatedEvent(address owner,uint256 newLockId,string _blueprint) constant {}
+    function _transfer(address _from, address _to, uint256 _tokenId) external {}
+    uint256 public maxNumberOfParents;
     mapping(uint256 => address) public lockIndexToOwner;
-
-
-    function GETlockStatus(uint256 _id) external view  returns(uint256){}
-    /** Lock Getters */
-    function GETlockletterLim(uint256 _id) external view returns (uint256 _lettersLimit){}
-    function GETlockpicsLim(uint256 _id) external view returns (uint256 _picslimit){}
-
-    /** Lock setters */
-    function SETlockstatus(uint256 _id,uint256 lockstatus) external {}
-    function SETlockletterLim(uint256 _id, uint256 _letterLim) external {}
-    function SETlockpicLim(uint256 _id,uint256 _picLim) external {}
+    function SETlockParent(uint256[] _parents,uint256 _id) external {}
+    function SETlockstatus(uint256 _id,uint lockstatus) external {}
+    /* Lock Letter Limit Setter */
+    function SETlockletterLim(uint256 _id, uint _letterLim) external {}
+    /* Lock Pics Limit Setter */
+    function SETlockpicLim(uint256 _id,uint _picLim) external {}
+    function SETblueprint(string _blueprint, uint256 _id) external  {}
 
 }
-
-
-contract LockUpgrade is LockAccessControl {
-
-    /** Events */
-    event LockUpgraded (uint lockid, uint256 increaseByValue);
-
+contract CallbackContract is LockAccessControl {
+    
     LockBase public baseContract;
     function setBaseContractAddress(address _newBaseAddr) external onlyCLevel {
         require(_newBaseAddr != address(0));
         baseContract = LockBase(_newBaseAddr);
     }
-    function LockUpgrade(address baseAddr) {
+    function LockCreateByForging(address baseAddr) {
         baseContract = LockBase(baseAddr);
         ceoAddress = msg.sender;
         cfoAddress = msg.sender;
         cooAddress = msg.sender;
     }
-
-    /**  Upgrade Lock  */
-    function upgradeLock(uint256 lockId,uint256 increaseByValue) external payable whenNotPaused {
-        require(baseContract.GETlockStatus(lockId)!=9);
-        // check if the person calling is the owner of lock
-        require(baseContract.lockIndexToOwner(lockId)==msg.sender);
-        // get lock
-        // Lock storage lockToBeUpgraded = locks[lockId];
-        uint256 lockLetterLim = baseContract.GETlockletterLim(lockId);
-        uint256 lockPicLim = baseContract.GETlockpicsLim(lockId);
-        // check if the plan exists
-        require(baseContract.limitIncreaseToRate(increaseByValue)!=0);
-        // check of the value is more than that has to be transferred
-        require(msg.value >= baseContract.limitIncreaseToRate(increaseByValue));
-        // transfer the rate to ceoAddress
-        ceoAddress.transfer(baseContract.limitIncreaseToRate(increaseByValue));
-        // trasfer the remainder to sender
-        msg.sender.transfer(msg.value - baseContract.limitIncreaseToRate(increaseByValue));
-        // increase the values by given amount
-        baseContract.SETlockletterLim(lockId,lockLetterLim+increaseByValue);
-        baseContract.SETlockpicLim(lockId,lockPicLim+increaseByValue);
-        // fire event
-        LockUpgraded(lockId,increaseByValue);
+    
+    
+    // callback function to be used by us to send the whole lock data and creating lock
+    function __callback(string _blueprint,address owner, uint256[] _parents,uint256 _letterLimit,uint256 _picLimit,uint256 _lockId) onlyCallBack whenNotPaused returns(uint256)  {
+        require(_parents.length <= baseContract.maxNumberOfParents());
+        for ( uint256 i = 0 ; i < _parents.length ; i++ ) {
+            require(baseContract.lockIndexToOwner(_parents[i])==owner);
+        }
+        baseContract.SETblueprint(_blueprint,_lockId);
+        baseContract.SETlockpicLim(_lockId,_picLimit);
+        baseContract.SETlockletterLim(_lockId,_letterLimit);
+        baseContract.SETlockstatus(_lockId,0);
+        baseContract.SETlockParent(_parents,_lockId);
+        
+        // transefers newly generated locks to owner address
+        baseContract._transfer(0, owner, _lockId);
+        baseContract.throwLockCreatedEvent(owner,_lockId,_blueprint);
+        return 0;
     }
 }
-
-
