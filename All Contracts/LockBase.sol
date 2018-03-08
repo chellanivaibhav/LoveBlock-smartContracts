@@ -250,25 +250,18 @@ contract LockBase is LockAccessControl {
     function SETtimeToRateMapping(uint64 _time, uint _rate) external RWAccess{
         timeToRateMapping[_time] = _rate;
     }
-
-    //-------------------------------------------------------
+    /* Lock Getter */
+    function GETlockblueprint(uint _id) external view RWAccess returns (string _blueprint){
+        return(locks[_id].lockBlueprint);
+    }
     // /* Lock Getter */
-    // function GETlockblueprint(uint _id) external view RWAccess returns (string _blueprint){
-    //     Lock memory l = locks[_id];
-    //     return(l.lockBlueprint);
-    // }
+    function GETlockcreationTime(uint _id) external view RWAccess returns (uint64 _creationtime){
+        return(locks[_id].creationTime);
+    }
     // /* Lock Getter */
-    // function GETlockcreationTime(uint _id) external view RWAccess returns (uint64 _creationtime){
-    //     Lock memory l = locks[_id];
-    //     return(l.creationTime);
-    // }
-    // /* Lock Getter */
-    // function GETlockparents(uint _id) external view RWAccess returns (uint[] _parentIds){
-    //     Lock memory l = locks[_id];
-    //     return(l.parentArray);
-    // }
-    //-------------------------------------------------------
-
+    function GETlockparents(uint _id) external view RWAccess returns (uint[] _parentIds){
+        return(locks[_id].parentArray);
+    }
     /* Lock Getter */
     function GETlockStatus(uint256 _id) external view RWAccess returns(uint256){
         return(locks[_id].lockStatus);
@@ -282,14 +275,6 @@ contract LockBase is LockAccessControl {
         // Lock memory l = locks[_id];
         return(locks[_id].picsLimit);
     }
-
-    //-------------------------------------------------------
-    // /* Lock Blue print Setter */
-    // function set_Lock_blueprint(uint _id,string _bluePrint) external onlyCLevel {
-    //     Lock storage l = locks[_id];
-    //     l.lockBlueprint = _bluePrint;
-    // }
-    //-------------------------------------------------------
 
     /* Lock Status Setter */
     function SETlockstatus(uint256 _id,uint lockstatus) external RWAccess{
